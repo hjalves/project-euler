@@ -6,8 +6,6 @@ Project Euler - Problem 14
 Longest Collatz sequence
 """
 
-import sys
-from collections import defaultdict
 from operator import itemgetter as iget
 
 def collatz(nums):
