@@ -111,4 +111,4 @@ numbers = """
 """
 
 numbers = numbers.split()
-print(numbers)
+print(str(sum(map(int, numbers)))[:10])
