@@ -6,8 +6,6 @@ Project Euler - Problem 23
 Non-abundant sums
 """
 
-from itertools import takewhile
-
 MAX = 28123     # "it can be shown that all integers greater than 28123 can be
                 # written as the sum of two abundant numbers"
 
