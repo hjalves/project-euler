@@ -7,7 +7,6 @@ Circular primes
 """
 
 from math import log10
-from collections import Counter
 from itertools import product, chain
 
 def digits(n):
