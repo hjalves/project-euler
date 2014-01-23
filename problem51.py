@@ -31,37 +31,29 @@ def split(n):
 def join(nl):
     return sum(b * 10**p for p, b in enumerate(reversed(nl)))
 
-def replace(sl, positions, char='*'):
-    sl = list(sl)
-    for p in positions:
-        sl[p] = char
-    return ''.join(sl)
+def replace(nl, pos, digit):
+    nl = list(nl)
+    for p in pos:
+        nl[p] = digit
+    return nl
 
-def comb(n):
-    return (c for i in range(1, n+1) for c in combinations(range(n), i))
+def allcomb(r):
+    return (c for i in range(len(r)) for c in combinations(r, i+1))
 
-def replace_digit(sl, original, replacement):
-    sl = list(sl)
-    for i, d in enumerate(sl):
-        if d == original:
-            sl[i] = replacement
-    return sl
+def candidate_pos(nl):
+    return tuple(i for i, n in enumerate(nl)
+                   if n in (0, 1, 2) and i != len(nl)-1)
 
-def test_replacements(sl, digit):
-    count = 0
-    for d in range(10):
-        if is_prime(join(replace_digit(sl, digit, d))):
-            count += 1
-    return count
+def test_primes(nl, pos):
+    return sum(1 for digit in range(10)
+                 if is_prime(join(replace(nl, pos, digit))))
 
-def eight_prime_family(n):
-    sl = list(split(n))
-    for d in set(sl):
-        if d in (0, 1, 2) and test_replacements(sl, d) == 8:
-            return True
-    return False
+def eight_prime_dig_replace(n):
+    nl = list(split(n))
+    return (pos for pos in allcomb(candidate_pos(nl))
+                if test_primes(nl, pos) == 8)
 
-for p in primes(1000000):
-    if eight_prime_family(p):
-        print(p)
-        exit(0)
+def eight_prime_families(max):
+    return ((p, pos) for p in primes(max) for pos in eight_prime_dig_replace(p))
+
+print(next(eight_prime_families(1000000)))
