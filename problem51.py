@@ -7,7 +7,6 @@ Prime digit replacements
 """
 
 from itertools import combinations
-from collections import Counter
 
 def prime_sieve(size):
     sieve = [0, 0] + [1] * (size-2)
@@ -40,20 +39,20 @@ def replace(nl, pos, digit):
 def allcomb(r):
     return (c for i in range(len(r)) for c in combinations(r, i+1))
 
-def candidate_pos(nl):
+def candidate_pos(nl, maxd):
     return tuple(i for i, n in enumerate(nl)
-                   if n in (0, 1, 2) and i != len(nl)-1)
+                   if n in range(maxd+1) and i != len(nl)-1)
 
 def test_primes(nl, pos):
-    return sum(1 for digit in range(10)
-                 if is_prime(join(replace(nl, pos, digit))))
+    digits = range(1, 10) if 0 in pos else range(10)
+    return sum(1 for d in digits if is_prime(join(replace(nl, pos, d))))
 
-def eight_prime_dig_replace(n):
-    nl = list(split(n))
-    return (pos for pos in allcomb(candidate_pos(nl))
-                if test_primes(nl, pos) == 8)
+def nth_prime_replace(p, nth):
+    nl = list(split(p))
+    return (pos for pos in allcomb(candidate_pos(nl, 10-nth))
+                if test_primes(nl, pos) >= nth)
 
-def eight_prime_families(max):
-    return ((p, pos) for p in primes(max) for pos in eight_prime_dig_replace(p))
+def nth_prime_families(max, nth):
+    return ((p, pos) for p in primes(max) for pos in nth_prime_replace(p, nth))
 
-print(next(eight_prime_families(1000000)))
+print(next(nth_prime_families(1000000, nth=8)))
