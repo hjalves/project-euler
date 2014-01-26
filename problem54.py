@@ -6,59 +6,46 @@ Project Euler - Problem 54
 Poker hands
 """
 
-from collections import Counter
-from operator import itemgetter
+from collections import Counter, defaultdict
 
-h = "6H 6C 6S 6D 9D".split()
-h = "4D 6S 9H QH QC".split()
+(NONE, ONEPAIR, TWOPAIR, THREEKIND, STRAIGHT,
+ FLUSH, FULLHOUSE, FOURKIND, STRFLUSH) = range(9)
+
+h = "5C 6D 7D 8C 9C".split()
+#h = "4D 6S 9H QH QC".split()
 
 def rank(c):
-    v = c[0]
     d = {'T': 10, 'J': 11, 'Q': 12, 'K': 13, 'A': 14}
-    return d[v] if v in d else int(v)
+    return d[c[0]] if c[0] in d else int(c[0], 0)
 
 def suit(c):
     return c[1]
 
-def ranks(h):
-    return map(value, h)
+def kinds(h):
+    l = defaultdict(list)
+    for k, v in Counter(map(rank, h)).items():
+        l[v].append(k)
+    return l
 
-def suits(h):
-    return map(suit, h)
-
-def rank_counter(h):
-    return Counter(map(rank, h))
-
-def suit_counter(h):
-    return Counter(map(suit, h))
-
-def straight(h):
-    l = sorted(ranks(h))
-    is_straight = all(y == x+1 for x, y in zip(l, l[1:]))
-    return is_straight and l[-1]
-
-def flush(h):
-    is_flush = len(set(suits(h))) == 1
-    return is_flush and max(ranks(h))
-
-def full_house(h):
-    vc = rank_counter(h)
-    is_full_house = 3 in vc.values() and 2 in vc.values()
-    return is_full_house and vc.most_common(1)[0][0]
-
-def four_kind(h):
-    vc = rank_counter(h)
-    is_four_kind = 4 in vc.values()
-    return is_four_kind and vc.most_common(1)[0][0]
-
-def three_kind(h):
-    vc = rank_counter(h)
-    is_three_kind = 3 in vc.values()
-    return is_three_kind and vc.most_common(1)[0][0]
-
-def two_pair(h):
-    vc = rank_counter(h)
-    pass
+def handkey(h):
+    k, l = kinds(h), tuple(sorted(map(rank, h), reverse=True))
+    is_straight = all(x == y+1 for x, y in zip(l, l[1:]))
+    is_flush = len(set(map(suit, h))) == 1
     
+    if is_straight and is_flush:    return STRFLUSH, l
+    if k[4]:                        return FOURKIND, k[4][0], l
+    if k[3] and k[2]:               return FULLHOUSE, k[3][0], l
+    if is_flush:                    return FLUSH, l
+    if is_straight:                 return STRAIGHT, l
+    if k[3]:                        return THREEKIND, k[3][0], l
+    if len(k[2]) == 2:              return TWOPAIR, max(k[2]), min(k[2]), l
+    if k[2]:                        return ONEPAIR, k[2][0], l
+    return NONE, l
+    
+with open("problem54/poker.txt") as textf:
+   games = [[line[:5], line[5:]] for line in map(str.split, textf)]
 
-print( rank_counter(h) )
+gameswon = sum(1 for p1, p2 in games if handkey(p1) > handkey(p2))
+print(gameswon)
+
+
