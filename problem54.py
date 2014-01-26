@@ -11,9 +11,6 @@ from collections import Counter, defaultdict
 (NONE, ONEPAIR, TWOPAIR, THREEKIND, STRAIGHT,
  FLUSH, FULLHOUSE, FOURKIND, STRFLUSH) = range(9)
 
-h = "5C 6D 7D 8C 9C".split()
-#h = "4D 6S 9H QH QC".split()
-
 def rank(c):
     d = {'T': 10, 'J': 11, 'Q': 12, 'K': 13, 'A': 14}
     return d[c[0]] if c[0] in d else int(c[0], 0)
@@ -29,23 +26,21 @@ def kinds(h):
 
 def handkey(h):
     k, l = kinds(h), tuple(sorted(map(rank, h), reverse=True))
-    is_straight = all(x == y+1 for x, y in zip(l, l[1:]))
-    is_flush = len(set(map(suit, h))) == 1
+    straight = all(x == y+1 for x, y in zip(l, l[1:]))
+    flush = len(set(map(suit, h))) == 1
     
-    if is_straight and is_flush:    return STRFLUSH, l
-    if k[4]:                        return FOURKIND, k[4][0], l
-    if k[3] and k[2]:               return FULLHOUSE, k[3][0], l
-    if is_flush:                    return FLUSH, l
-    if is_straight:                 return STRAIGHT, l
-    if k[3]:                        return THREEKIND, k[3][0], l
-    if len(k[2]) == 2:              return TWOPAIR, max(k[2]), min(k[2]), l
-    if k[2]:                        return ONEPAIR, k[2][0], l
+    if straight and flush:      return STRFLUSH, l
+    if k[4]:                    return FOURKIND, k[4][0], l
+    if k[3] and k[2]:           return FULLHOUSE, k[3][0], l
+    if flush:                   return FLUSH, l
+    if straight:                return STRAIGHT, l
+    if k[3]:                    return THREEKIND, k[3][0], l
+    if len(k[2]) == 2:          return TWOPAIR, max(k[2]), min(k[2]), l
+    if k[2]:                    return ONEPAIR, k[2][0], l
     return NONE, l
-    
+
 with open("problem54/poker.txt") as textf:
    games = [[line[:5], line[5:]] for line in map(str.split, textf)]
 
 gameswon = sum(1 for p1, p2 in games if handkey(p1) > handkey(p2))
 print(gameswon)
-
-
