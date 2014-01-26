@@ -22,6 +22,3 @@ def multest():
     return (n for d in count(1) for n in digtest(d))
 
 print(next(multest()))
-
-
-
