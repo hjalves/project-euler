@@ -18,9 +18,9 @@ def prime_sieve(size):
                 sieve[j] = 0
     return sieve
 
-print("prime sieve")
+print("prime sieve...")
 psieve = prime_sieve(size=100000000)
-print("done")
+print("prime sieve done")
 
 def isprime_slow(n):
     return all(n % i != 0 for i in range(2, int(n**0.5)+1))
@@ -68,5 +68,5 @@ def pairset_n_primes(pairs, n):
 pairs = pairs_of_prime_concats(9999)
 vpairs = pairset_n_primes(pairs, 5)
 
-for k, v in sorted(vpairs.items()):
-    print(k, v, "sum:", sum(k))
+for k in sorted(vpairs):
+    print(k, "sum:", sum(k))
