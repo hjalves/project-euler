@@ -6,8 +6,9 @@ Project Euler - Problem 61
 Cyclical figurate numbers
 """
 
+from collections import defaultdict
 from functools import partial
-from itertools import count
+from itertools import count, takewhile
 
 def poligonal(p, n):
     assert p in range(3, 9)
@@ -21,33 +22,36 @@ def poligonal(p, n):
 def divdigits(n):
     return divmod(n, 100)
 
+def polygonal_count(p):
+    return (poligonal(p, n) for n in count(1))
 
-#def makematrix(p):
-#    for x in map(partial(poligonal, p), count(1)):
-#        if x >= 10000:
-#            return m
+def polygonal_l10k(p):
+    return takewhile(lambda x: x < 10000, polygonal_count(p))
 
-def test():
-    for p in range(3, 9):
-        for i in range(1, 10):
-            print(poligonal(p, i), end=' ')
-        print()
+def polygonal_4dig(p):
+    d = defaultdict(set)
+    for a, b in map(divdigits, polygonal_l10k(p)):
+        if a >= 10 and b >= 10:
+            d[a].add(b)
+    return d
+        
+def make_dict():
+    return {p: polygonal_4dig(p) for p in range(3, 9)}
 
-import numpy as np
-a = np.zeros((6,6))
-b = np.zeros((6,6))
-c = np.zeros((6,6))
+def build_cicles(d, ns, ps, rem):
+    if not rem:
+        if ns[0] in d[ps[-1]][ns[-1]]:
+            yield ns, ps
+    for p in rem:
+        for n in d[p]:
+            if not ps or n in d[ps[-1]][ns[-1]]:
+                for x in build_cicles(d, ns + [n], ps + [p], rem - {p}):
+                    yield x
 
-a[0,2] = 1
-a[1,3] = 1
-a[4,3] = 1
+def join_4digits(ns):
+    return [a*100 + b for a, b in zip(ns, ns[1:]+ns[:1])]
 
-b[2,5] = 1
-b[3,2] = 1
-b[1,4] = 1
-
-c[2,1] = 1
-c[5,2] = 1
-
-print(a.T*b)
-
+cycles = build_cicles(make_dict(), [], [], set(range(3, 9)))
+for ns, ps in cycles:
+    numbers = join_4digits(ns)
+    print(ns, ps, '\n', numbers, "sum:", sum(numbers))
